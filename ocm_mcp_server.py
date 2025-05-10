@@ -5,7 +5,7 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("ocm")
 
-OCM_API_BASE = "https://api.openshift.com"
+OCM_API_BASE = os.environ.get("OCM_API_BASE", "https://api.openshift.com")
 
 async def make_request(url: str) -> dict[str, Any] | None:
     client_id = os.environ["OCM_CLIENT_ID"]
