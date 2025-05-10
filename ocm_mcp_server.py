@@ -7,7 +7,6 @@ mcp = FastMCP("ocm")
 
 OCM_API_BASE = "https://api.openshift.com"
 
-
 async def make_request(url: str) -> dict[str, Any] | None:
     client_id = os.environ["OCM_CLIENT_ID"]
     offline_token = os.environ["OCM_OFFLINE_TOKEN"]
@@ -65,6 +64,26 @@ def format_addons_response(data):
     return "\n".join(lines)
 
 
+def format_fleet_manager_service_clusters_response(data):
+    if not data or "items" not in data:
+        return "No clusters found or invalid response."
+
+    lines = []
+    for cluster in data["items"]:
+        name = cluster.get("name", "N/A")
+        id = cluster.get("id", "N/A")
+        status = cluster.get("status", "N/A")
+        sector = cluster.get("sector", "N/A")
+        creation = cluster.get("creation_timestamp", "N/A")
+        lines.append(
+            f"Cluster: {name}\n"
+            f"  ID: {id}\n"
+            f"  STATUS: {status}\n"
+            f"  SECTOR: {sector}\n"
+            f"  CREATION_TIMESTAMP: {creation}\n"
+        )
+    return "\n".join(lines)
+
 @mcp.tool()
 async def get_clusters(state: str) -> str:
     url = f"{OCM_API_BASE}/api/clusters_mgmt/v1/clusters"
@@ -74,6 +93,14 @@ async def get_clusters(state: str) -> str:
     print(formatted)
     return formatted
 
+@mcp.tool()
+async def get_fleet_manager_service_clusters(state: str) -> str:
+    url = f"{OCM_API_BASE}/api/osd_fleet_mgmt/v1/service_clusters"
+    data = await make_request(url)
+
+    formatted = format_fleet_manager_service_clusters_response(data)
+    print(formatted)
+    return formatted
 
 @mcp.tool()
 async def get_cluster(cluster_id: str) -> str:
