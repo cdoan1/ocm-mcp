@@ -51,6 +51,20 @@ def format_clusters_response(data):
         )
     return "\n".join(lines)
 
+def format_whoami_response(data):
+    if not data:
+        return "No whoami data found."
+
+    lines = []
+    username = data.get("username", "N/A")
+    id = data.get("id", "N/A")
+
+    lines.append(
+        f"Username: {username}\n"
+        f"  ID: {id}\n"
+    )
+    return "\n".join(lines)
+
 
 def format_addons_response(data):
     if not data or "items" not in data:
@@ -65,8 +79,9 @@ def format_addons_response(data):
 
 
 def format_fleet_manager_service_clusters_response(data):
+    print(data)
     if not data or "items" not in data:
-        return "No clusters found or invalid response."
+        return "No service clusters found or invalid response."
 
     lines = []
     for cluster in data["items"]:
@@ -94,15 +109,6 @@ async def get_clusters(state: str) -> str:
     return formatted
 
 @mcp.tool()
-async def get_fleet_manager_service_clusters(state: str) -> str:
-    url = f"{OCM_API_BASE}/api/osd_fleet_mgmt/v1/service_clusters"
-    data = await make_request(url)
-
-    formatted = format_fleet_manager_service_clusters_response(data)
-    print(formatted)
-    return formatted
-
-@mcp.tool()
 async def get_cluster(cluster_id: str) -> str:
     url = f"{OCM_API_BASE}/api/clusters_mgmt/v1/clusters/{cluster_id}"
     data = await make_request(url)
@@ -120,6 +126,26 @@ async def get_cluster_addons(cluster_id: str) -> str:
         return format_addons_response(data)
     return "Failed to fetch addons data."
 
+
+# /api/accounts_mgmt/v1/current_account
+@mcp.tool()
+async def get_whoami(state: str) -> str:
+    url = f"{OCM_API_BASE}/api/accounts_mgmt/v1/current_account"
+    data = await make_request(url)
+    print(data)
+    if data:
+        return format_whoami_response(data)
+    return "Failed to fetch addons data."
+
+# /api/osd_fleet_mgmt/v1/service_clusters
+@mcp.tool()
+async def get_fleet_manager_service_clusters(state: str) -> str:
+    url = f"{OCM_API_BASE}/api/osd_fleet_mgmt/v1/service_clusters"
+    data = await make_request(url)
+
+    formatted = format_fleet_manager_service_clusters_response(data)
+    print(formatted)
+    return formatted
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
