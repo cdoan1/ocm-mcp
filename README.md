@@ -33,3 +33,31 @@ Example configuration for running with Podman:
 ```
 
 Replace `REDACTED` with the value from https://console.redhat.com/openshift/token.
+
+## Running with MCPHost and Podman
+
+```json
+{
+  "mcpServers": {
+    "ocm-mcp": {
+      "url": "http://0.0.0.0:8080/sse",
+      "headers":[
+        "Authorization: Bearer my-token"
+       ]
+    }
+  }
+}
+```
+
+Where the MCP Server is deployed via:
+
+```bash
+# start up the MCP Server
+podman run --network podman -i --rm \
+-p 8080:8080 \
+-e ACCESS_TOKEN_URL="https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token" \
+-e OCM_CLIENT_ID="cloud-services" \
+-e OCM_API_BASE="https://api.openshift.com" \
+-e OCM_OFFLINE_TOKEN="$OCM_OFFLINE_TOKEN" \
+quay.io/cdoan25/ocm-mcp:sse
+```
