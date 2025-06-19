@@ -1,2 +1,5 @@
 httpx
 fastmcp
+sse-starlette
+starlette
+uvicorn
